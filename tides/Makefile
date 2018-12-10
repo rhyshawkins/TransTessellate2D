@@ -17,7 +17,6 @@ BASEOBJS = \
 	../base/ptexchange.o \
 	../base/generalvoronoicartesianutil.o
 
-TDTBASE=../../TDTbase
 LIBS = -L../lib -ldelaunay \
 	$(shell gsl-config --libs)
 
