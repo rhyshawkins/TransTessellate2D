@@ -66,7 +66,7 @@ public:
 	 std::vector<double> _lambdas,
 	 double _temperature,
 	 int seed,
-	 bool posterior) :
+	 bool _posterior) :
     nmodels(_nmodels),
     xmin(_xmin),
     xmax(_xmax),
@@ -83,7 +83,8 @@ public:
     residual_size(0),
     mean_residual_n(0),
     maxcells(_maxcells),
-    random(seed)
+    random(seed),
+    posterior(_posterior)
   {
     //
     // Load value priors (required)
@@ -320,40 +321,42 @@ public:
       //
       // Prune unused model parameters
       //
-      for (int mi = 0; mi < nmodels; mi ++) {
-	std::vector<bool> used(models[mi]->ntotalcells(), false);
-	for (auto &o : data.obs) {
-	  
-	  for (int pi = 0; pi < (int)o.xs.size(); pi ++) {
+      if (not posterior) {
+	for (int mi = 0; mi < nmodels; mi ++) {
+	  std::vector<bool> used(models[mi]->ntotalcells(), false);
+	  for (auto &o : data.obs) {
 	    
-	    if (o.mi[pi] == mi) {
-	      int nc;
-	      const int *indices = o.refs[pi]->cached_indices(nc);
-	      if (nc > 0) {
-		for (int j = 0; j < nc; j ++) {
-		  used[indices[j]] = true;
+	    for (int pi = 0; pi < (int)o.xs.size(); pi ++) {
+	    
+	      if (o.mi[pi] == mi) {
+		int nc;
+		const int *indices = o.refs[pi]->cached_indices(nc);
+		if (nc > 0) {
+		  for (int j = 0; j < nc; j ++) {
+		    used[indices[j]] = true;
+		  }
+		  
+		} else {
+		  printf("warning: no cached indices\n");
 		}
-		
-	      } else {
-		printf("warning: no cached indices\n");
 	      }
 	    }
 	  }
-	}
-
-	int pruned_count = 0;
-	for (int j = used.size() - 1; j >= 4; j --) {
-	  if (!used[j]) {
-	    models[mi]->delete_cell(j);
-	    pruned_count ++;
+	  
+	  int pruned_count = 0;
+	  for (int j = used.size() - 1; j >= 4; j --) {
+	    if (!used[j]) {
+	      models[mi]->delete_cell(j);
+	      pruned_count ++;
+	    }
 	  }
-	}
-	
-	if (pruned_count > 0) {
-	  printf("%2d Pre  prune: %12.6f %6d %6d\n", mi, current_P, (int)used.size(), pruned_count);
-	  current_P = likelihood(current_N, true);
-	  printf("%2d Post prune: %12.6f %6d %d\n", mi, current_P,
-		 (int)models[mi]->ntotalcells(), pruned_count);
+	  
+	  if (pruned_count > 0) {
+	    printf("%2d Pre  prune: %12.6f %6d %6d\n", mi, current_P, (int)used.size(), pruned_count);
+	    current_P = likelihood(current_N, true);
+	    printf("%2d Post prune: %12.6f %6d %d\n", mi, current_P,
+		   (int)models[mi]->ntotalcells(), pruned_count);
+	  }
 	}
       }
       
@@ -1092,7 +1095,8 @@ public:
   int maxcells;
   
   Rng random;
-  
+
+  bool posterior;
 };
 
 #endif // globalspherical_hpp

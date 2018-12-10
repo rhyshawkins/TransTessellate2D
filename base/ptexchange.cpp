@@ -119,12 +119,12 @@ PTExchange::step(double &current_likelihood,
       //
       for (int i = 0; i < ntemperatures; i ++) {
 	for (int j = 0; j < chainspertemperature; j ++) {
-
+	  
 	  ptpairs[j * ntemperatures + i] = transposed_ptpairs[i * chainspertemperature + j];
-
+	  
 	}
       }
-
+      
       //
       // Shuffle between temperatures
       //
@@ -156,6 +156,10 @@ PTExchange::step(double &current_likelihood,
     }
     
     if (partner < 0) {
+      INFO("ptpairs");
+      for (int j = 0; j < temperature_size; j ++) {
+	INFO("%d ", ptpairs[j]);
+      }
       throw GENERALVORONOICARTESIANEXCEPTION("Failed to find self in exchange list\n");
     }
     
@@ -421,6 +425,8 @@ PTExchange::initialize_mpi(MPI_Comm _global_communicator,
 
   INFO("%03d: Global Size: %d NChains: %d PPC: %d\n", global_rank, global_size, ntotalchains, processesperchain);
 
+  INFO("%03d: Temperature Size: %d Temperature Rank: %d\n", global_rank, temperature_size, temperature_rank);
+  
   //
   // Expected max size = (nmodels*(maxcells + 4) * 3 + nhierarchical) * sizeof(double)
   // but we add a bit extra for the overhead (a couple of ints)

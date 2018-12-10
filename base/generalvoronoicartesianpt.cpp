@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
   int chain_rank;
   int chain_id;
   
-  if (chains == 1) {
+  if (chains == 1 && temperatures == 1) {
     chain_id = 0;
     temperature = 1.0;
     chain_communicator = MPI_COMM_WORLD;

@@ -1,8 +1,14 @@
 
 TARGETS = datatemplate.txt \
-	syntheticobs_franke.txt  
+	syntheticobs_franke.txt \
+	results_voronoi/mean.txt \
+	results_delaunay/mean.txt \
+	results_ct/mean.txt
 
 NOISE = 0.05
+
+PROCESSORS = 4
+CHAINS = 1
 
 all : $(TARGETS)
 
@@ -44,7 +50,7 @@ results_voronoi/ch.dat-000 : syntheticobs_franke.txt \
 	positionpriorproposal.txt \
 	hierarchicalpriorproposal.txt 
 	mkdir -p results_voronoi
-	mpirun -np 16 ../hmcpt -i syntheticobs_franke.txt \
+	mpirun -np $(PROCESSORS) ../hmcpt -i syntheticobs_franke.txt \
 	-P priorproposal.txt \
 	-M positionpriorproposal.txt \
 	-H hierarchicalpriorproposal.txt \
@@ -55,10 +61,11 @@ results_voronoi/ch.dat-000 : syntheticobs_franke.txt \
 	-t 1000000 \
 	-v 10000 \
 	-C 50 \
-	-c 4 -K 4 -m 5.0 -e 10
+	-c $(CHAINS) \
+	-K 4 -m 5.0 -e 10
 
 results_voronoi/mean.txt : results_voronoi/ch.dat-000
-	mpirun -np 4 ../post_mean_mpi \
+	mpirun -np $(CHAINS) ../post_mean_mpi \
 	-x 0.0 -X 1.0 -y 0.0 -Y 1.0 \
 	-i results_voronoi/ch.dat -o $@ \
 	-t 50 \
@@ -70,7 +77,7 @@ results_delaunay/ch.dat-000 : syntheticobs_franke.txt \
 	positionpriorproposal.txt \
 	hierarchicalpriorproposal.txt 
 	mkdir -p results_delaunay
-	mpirun -np 16 ../hmcpt -i syntheticobs_franke.txt \
+	mpirun -np $(PROCESSORS) ../hmcpt -i syntheticobs_franke.txt \
 	-P priorproposal.txt \
 	-M positionpriorproposal.txt \
 	-H hierarchicalpriorproposal.txt \
@@ -82,10 +89,11 @@ results_delaunay/ch.dat-000 : syntheticobs_franke.txt \
 	-v 10000 \
 	-C 50 \
 	-A 1 \
-	-c 4 -K 4 -m 5.0 -e 10
+	-c $(CHAINS) \
+	-K 4 -m 5.0 -e 10
 
 results_delaunay/mean.txt : results_delaunay/ch.dat-000
-	mpirun -np 4 ../post_mean_mpi \
+	mpirun -np $(CHAINS) ../post_mean_mpi \
 	-x 0.0 -X 1.0 -y 0.0 -Y 1.0 \
 	-i results_delaunay/ch.dat -o $@ \
 	-t 50 -s 500000 -W 50 -H 50 \
@@ -97,7 +105,7 @@ results_ct/ch.dat-000 : syntheticobs_franke.txt \
 	positionpriorproposal.txt \
 	hierarchicalpriorproposal.txt 
 	mkdir -p results_ct
-	mpirun -np 16 ../hmcpt -i syntheticobs_franke.txt \
+	mpirun -np $(PROCESSORS) ../hmcpt -i syntheticobs_franke.txt \
 	-P priorproposal.txt \
 	-M positionpriorproposal.txt \
 	-H hierarchicalpriorproposal.txt \
@@ -109,10 +117,11 @@ results_ct/ch.dat-000 : syntheticobs_franke.txt \
 	-v 10000 \
 	-C 50 \
 	-A 2 \
-	-c 4 -K 4 -m 5.0 -e 10
+	-c $(CHAINS) \
+	-K 4 -m 5.0 -e 10
 
 results_ct/mean.txt : results_ct/ch.dat-000
-	mpirun -np 4 ../post_mean_mpi \
+	mpirun -np $(CHAINS) ../post_mean_mpi \
 	-x 0.0 -X 1.0 -y 0.0 -Y 1.0 \
 	-i results_ct/ch.dat -o $@ \
 	-t 50 -s 500000 -W 50 -H 50 \

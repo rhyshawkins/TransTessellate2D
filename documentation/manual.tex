@@ -1,0 +1,502 @@
+
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{natbib}
+
+\begin{document}
+
+\title{Manual for Generic Trans-dimensional code for 2D Problems}
+\author{Rhys Hawkins}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+This software contains a general framework for the inversion of 2D surface
+reconstructions using a Bayesian Trans-dimensional approach with a
+Voronoi Cell, Delaunay Triangulation or Clough-Tocher interpolant.
+For an introduction to the Trans-dimensional Tree method, see \citet{Hawkins:2018:B}.
+
+\section{Installation}
+
+The main framework is in the source code in the {\tt base} and {\tt lib} directories, with a
+demonstration of a regression problem in the {\tt generalregressioncpp} directory,
+a multiple surface regression problem in the {\tt dualregressioncpp} directory, and
+the code for the synthetic Tide Gauge example in the {\tt tides} directory.
+
+This code is expected to be run on a Unix machine and requires the
+following packages to compile:
+
+\begin{itemize}
+\item GNU g++ Version 6.x or greater
+\item GNU fortran Version 6.x or greater
+\item GNU Make version 4.x or greater
+\item GNU Scientific Library (GSL) version 1 or 2
+\item OpenMPI version 1.10
+\end{itemize}
+
+The source code with example scripts and data is called
+TDTWave2D.tar.gz and once the environment is properly
+configued, extraction and compilation can proceed as follows:
+
+\begin{verbatim}
+> tar -xzf <name>.tar.gz
+> cd <name>
+> make -C lib
+> make -C base
+> make -C generalregressioncpp
+> make -C generaltomocpp 
+> make -C tides
+\end{verbatim}
+
+\section{Tutorial on Running the Regression Example}
+
+In the {\tt generalregressioncpp/example} directory, there is an example
+synthetic regression problem showing various options for inversion.
+The Makefile in this directory contains the commmands that are described
+in the following paragraphs.
+
+\subsection{Creating a synthetic dataset}
+
+The synthetic observation generating program requires a synthetic
+image and a set of sythetic points for a regression problem. Python scripts
+are available to provide both, first for the random points:
+
+\begin{verbatim}
+python2 ../../scripts/generatetempatepoints.py -N 100 -o datatemplate.txt
+\end{verbatim}
+
+The {\tt -N} option specifies the number of points. By default the domain
+of the points will be -1 $\ldots$ 1 for both $x$ and $y$ directions.
+
+Secondly, the image can be generated using
+
+\begin{verbatim}
+python2 ../../scripts/generatetemplateimage.py -W 32 -H 32 \
+  -m Gaussian \
+  -o imagetemplategaussian.txt
+\end{verbatim}
+
+The {\tt -W} and {\tt -H} specify the width and height of the image in pixels
+and both must be powers of 2. The {\tt -m} option specifies the synthetic
+model, options are Constant for an homogeneous image and Gaussian for a Gaussian
+hill.
+
+Finally, using these two files as input, synthetic observations can be constructed
+with noise using:
+
+\begin{verbatim}
+../mksyntheticregression \
+  -i imagetemplategaussian.txt \
+  -I datatemplate.txt \
+  -N 0.05 \
+  -o syntheticobs_gaussian.txt
+\end{verbatim}
+
+The {\tt -N} option specifies the level of noise. By default the range of image
+amplitude is between 0 and 1, so 0.05 is a 5\% error level.
+
+\subsection{Prior/Proposal Specification}
+
+The Trans-dimensional tree approach with a wavelet parameterisation adds and removes
+wavelet coefficients to a wavelet model that can represent an image. The wavelet coefficients,
+by construction, are organised in a hierarchy from coarse to fine length scale. This
+means the prior specification is non-intuitive. The recommended and simplest
+approach to specification of the prior is to use either a fixed or hierarchical
+Laplacian prior as this gives generally good performance and is far simpler to
+specify.
+
+The prior and proposals are specified in a single text file which we give
+an example below (taken from {\tt generalregressioncpp/example/priorproposal.txt})
+
+\begin{verbatim}
+laplace
+0.1
+priorbirth
+depthgaussianperturb
+5
+0.025
+0.035
+0.050
+0.050
+0.050
+\end{verbatim}
+
+The first two lines specify a Laplacian prior with 0.1 width (similar to standard
+deviation). This 0.1 value may need to be adjusted if a fixed Laplacian prior is
+used in the inversion and birth/death acceptance is poor.
+
+The next line specifies how birth/death proposals are performed, it is
+suggested that this is always left as {\tt priorbirth} meaning new
+wavelet coefficients are sampled from the prior.
+
+The rest of the file specifies the proposal used for change of value
+proposals for wavelet coefficients. The example here, {\tt
+  depthgaussianperturb}, means that each scale length of wavelet
+coefficients is perturbed with a Gaussian proposal with independently
+specified standard deviation. In this example we have specified 5
+levels, however if the wavelet model has more than 5 levels, it uses
+the last level specified for higher levels so this specification
+doesn't need to match the size of the wavelet model.
+
+For tuning the acceptance rates of an inversion, this set of standard
+deviations may need to adjusted to attempt to achieve an acceptance
+rate between 20 and 50 percent. 
+
+\subsection{Serial Inversion}
+
+The way these codes work is that they run for a specified number of
+iterations and output statistical information to a series of files.
+To run a short inversion of the synthetic data, the following
+could be used:
+
+\begin{verbatim}
+mkdir -p results_gaussian
+../regressiontdtwave2d -i syntheticobs_gaussian.txt \
+  -M priorproposal.txt \
+  -o results_gaussian/ \
+  -v 10000 \
+  -x 5 -y 5 -t 1000000 -w 4
+\end{verbatim}
+
+The parameters are described as follows:
+
+\begin{description}
+\item [-i] The observations input file
+\item [-M] The prior/proposal file described in the previous section
+\item [-o] The results file(s) output prefix (append a ``/'') to output to a
+  directory.
+\item [-v] Verbosity or how often the running diagnostics are output
+\item [-x/y] The width and height of the model image expressed as a power of two. In
+  the above example, the image is $2^5$ or 32 by 32 pixels.
+\item [-t] The total number of iterations
+\item [-w] The wavelet basis to use. Ranges from 0 (coarse) to 4 (smooth) bases.
+\end{description}
+
+In the {\tt results\_gaussian} directory, there will be a number of files written,
+described as follows:
+
+\begin{description}
+\item[acceptance.txt] the final acceptance rates of the simulation for the different
+  proposal types.
+\item[ch.dat] the chain history (binary)
+\item[final\_model.txt] the final model (useful for continuing Markov chains)
+\item[khistogram.txt] the histogram of the number of wavelet coefficients
+\item[residuals.txt] the mean residuals for each observation.
+\end{description}
+
+The most important of these for analysis/visualization of the results is the chain
+history file {\tt ch.dat} that contains all the models of the ensemble.
+Information can be extracted from the chain history file with post processing
+commands, for example, to obtain a mean image:
+
+\begin{verbatim}
+../postprocess_mean -i results_gaussian/ch.dat \
+  -s 5000 \
+  -t 10 \
+  -x 5 -y 5 -w 4 \
+  -o results_gaussian/mean.txt
+\end{verbatim}
+
+The various parameters here are descibed as follows
+
+\begin{description}
+\item[-i] The input chain history file
+\item[-s] The number of models to skip from the processing (i.e. burnin samples that
+  are thrown away).
+\item[-t] Thinning, or in the example above, only every tenth model is used.
+\item[-x/y] The size of the image (this must match the inversion).
+\item[-w] The wavelet basis to use (this must match the inversion).
+\item[-o] The output mean image to write.
+\end{description}
+
+The mean image is writen in text format and can be visualized simply
+with python, for example
+
+\begin{verbatim}
+import numpy
+import matplotlib.pyplot as P
+
+img = numpy.loadtxt('results_gaussian/mean.txt')
+fig, ax = P.subplots()
+ax.imshow(img)
+P.show()
+\end{verbatim}
+
+\subsection{Further examples}
+
+Several other use cases of the commands described above are shown in the
+{\tt generalregressioncpp/example/Makefile} file, including examples
+of running parallel the version.
+  
+\subsection{Diagnostics}
+
+The program will output log messages periodically depending on the
+verbosity level (default is every 1000 iterations). This information
+includes the time which is useful for estimation of remaining running
+time by looking at the time difference between two log outputs.  The
+first line contains the iterations number (10000), the current
+negative log likelihood with the misfit (46.4) and normalization shown
+in brackets (-300). The next number (51) is the number of wavelet
+coefficients, followed by the dc or mean of the model image. Lambda is
+the hierarchical scaling parameter, and T is the temperature.  An
+abridged example of the output is shown below
+
+{
+  \tiny
+\begin{verbatim}
+2018-05-14 01:29:11:...:000  10000: 46.446122(-300.492166) 51 dc 0.723397 lambda 1.000000 T 1.000000:
+2018-05-14 01:29:11:...:Birth:    516  49.806:  0.000  33.333  27.273  22.581  52.121  76.687 
+2018-05-14 01:29:11:...:Death:    500  41.400:  0.000   0.000  15.909  16.854  41.463  68.023 
+2018-05-14 01:29:11:...:Value:   8984  47.362: 29.804  17.532  22.280  44.542  71.097  76.858 
+\end{verbatim}
+}
+
+A key component of monitoring these inversions is the acceptance
+rates, particularly for the value proposals. In the example output
+above, the last line shows the statistics for the value proposals. The
+first number is the number of value proposals so far, the next number
+before the colon is the average acceptance rate across the hierarchcy
+of wavelet coefficients. The remaining numbers are the individual
+acceptance rates at each level, in this case levels 0 $\ldots$
+5. Ideally, the acceptace rates for these coefficients should be
+between approximately 20 and 50 percent and this is especially
+important for levels 0, 1, 2, and maybe 3. It is often the case that
+the value proposal acceptance rates for higher levels is high, but of
+little importance.
+
+To tune these acceptance rates, editing of the {\tt priorproposal.txt}
+file may be required. To lower the acceptance rate, in the case where it is too
+high, the standard deviation of the particular level must be increased. The
+reverse is true when the acceptance rate is too low, i.e. the standard deviation
+of the perturbation should be decreased.
+
+\section{Writing Custom Applications}
+
+Each of the example applications are written as custom applications and as such
+can be used as templates for incorporating your own physical modelling or
+likelihood functions into an trans-dimensional tree inversion.
+
+\subsection{Background}
+
+For a custom application, the Likelihood function needs to be defined,
+which can include any forward modelling.  The way the generic part of
+the code is formulated is that it is assumed that each observation
+needs to know the model image for the current iteration. A forward
+model can take the values of the model at each point and compute a
+prediction. For example, in a tomographic forward model, the ray path
+integral can be approximated by a discrete summation to compute a
+travel time prediction.
+
+Lastly, the prediction is then compared to the observation and a
+probabilisitic likelihood can be computed, commonly an indepedent
+Gaussian likelihood, that is
+
+\begin{equation}
+  p(\mathbf{d}|\mathbf{m}) = \frac{1}{\sqrt{2 \pi} \prod_{i=1}^N \sigma_i} \exp \left\{
+  - \sum_{i = 1}^N \frac{(G(\mathbf{m})_i - d_i)^2}{2\sigma_i^2} \right\}
+    ,
+\end{equation}
+
+where $G(\mathbf{m})_i$ is the prediction, $d_i$ is the observation,
+$\sigma_i$ is the error on the observation. For accuracy, the negative
+log likelihood is used and separated into
+
+\begin{align}
+  \label{eqn:like}
+  \mathcal{L} = \sum_{i = 1}^N \frac{(G(\mathbf{m})_i - d_i)^2}{2\sigma_i^2} \\
+  \label{eqn:norm}
+  \mathcal{N} = \log \left\{ \frac{1}{\sqrt{2 \pi} \prod_{i=1}^N \sigma_i} \right\}
+  ,
+\end{align}
+
+and these are called {\tt like} and {\tt norm} in the code
+respectively. To implement a custom application, you first need to
+derive the likelihood and the operation of the forward model based
+on the model image. Then you need to implement some functions of
+your own for running inversions. These functions are described in
+the following sections for C++. The fortran interface is functionally
+equivalent and the code implementing the regression problem in
+{\tt generalregressionf/genericregression.f90} is commented and
+should serve as a guide.
+
+\subsection{Loading data}
+
+The data file format is entirely in the control of the programmer.
+The command line application is passed a filename to load, and this is
+passed onto the load function directly. This file could be a raw data
+file or a configuration file that points to a series of files that
+require loading for the inverse problem. This function must load all
+necessary data for subsequent calculation of predictions and the
+likelihood. The interface is as follows:
+
+\begin{verbatim}
+  int tdtwave2d_loaddata_(int *n,
+                          const char *filename,
+                          int *width,
+                          int *height);
+\end{verbatim}
+
+The parameters are
+
+\begin{description}
+\item[n] The length of the filename string
+\item[filename] The filename to load
+\item[width] The width of the model image
+\item[height] The height of the model image
+\end{description}
+
+The first parameter is only needed for Fortran problems. This is also
+the reason that the integer parameters are passed as pointers.
+
+It is up to the custom application to permanently store any data
+necessary for the likelihood or calculation of predictions in this
+function.
+
+The function should return zero on success and negative one for any
+error.  This will subsequently terminate the main program.
+
+\subsection{Computing predictions}
+
+The next function that needs to be implemented is the function that
+computes the predictions for a single observation. The C interface for
+this function is shown below
+
+
+\begin{verbatim}
+  int tdtwave2d_compute_prediction_(int *observation,
+                                    int *width, 
+                                    int *height,
+                                    const double *value,
+                                    double *unused,
+                                    double *prediction);
+\end{verbatim}
+
+The function passes in a observation index from 0 to the number of
+observations minus one (i.e. using C indexing). A cautionary note here
+for fortran users is that if the observations are stored in a standard
+fortran array, one needs to be added to this index (see fortran
+examples and the variable {\tt oi}).
+
+At present there is a single output value that needs to be computed and
+stored in the scalar prediction variable. This should be a value for regression
+type problems or a travel time for tomography type problems. There is an unused
+array currently in the code to allow for future improved functionality.
+
+The function should return zero on success and negative one if there
+is an error.
+
+\subsection{Computing the likelihood}
+
+The C++ interfaces for the function that needs to be implemented to
+compute the likelihood are below:
+
+\begin{verbatim}
+  int tdtwave2d_compute_likelihood_(int *nobservation,
+                                    double *hvalue,
+                                    double *predictions,
+                                    double *residuals,
+                                    double *unused,
+                                    double *like,
+                                    double *norm);
+\end{verbatim}
+
+The input variables are
+
+\begin{description}
+\item[nobservation] The number of observations (size of the arrays passed in)
+\item[hvalue] The hierarchical scale value
+\item[predictions] The array of model predictions for each observation, i.e. the vector $G(\mathbf{m})$
+\end{description}
+
+When performing a hierarchical inversion where a noise term is
+inverted for, the value hvalue is the hierarchical value that can be
+used directly as the noise level on the data, or as a scaling term
+used to scale the data errors. In non-hierarchical inversions, this value
+will always be one and can be ignored.
+
+The output variables that need to be set are
+
+\begin{description}
+\item[residuals] The array of residuals, i.e. the vector $G(\mathbf{m}) - \mathbf{d}$
+\item[like] The negative log likelihood without the normalization constant, i.e. equation (\ref{eqn:like})
+  for an independent Gaussian likelihood
+\item[norm] The negative log of the likelihood normalization constant, i.e. equation (\ref{eqn:norm})
+  for an independent Gaussian likelihood
+\end{description}
+
+There is additionally an unused parameter for future expansion that should be ignored
+at this stage.
+
+Again, this function should return zero on success and negative one on error.
+
+\subsection{Synthetic Model Generation}
+
+For synthetic model generation useful for testing, an additional function needs to be
+implemented with the C++ and fortran interfaces below
+
+\begin{verbatim}
+  int tdtwave2d_savedata_(int *n,
+                          const char *filename,
+                          double *noiselevel,
+                          int *nobservations,
+                          double *predictions);
+\end{verbatim}
+
+The parameter {\tt n} and {\tt filename} specify the length and the name
+of the file to create. The {\tt noiselevel} specifies the true Gaussian
+noise added to the synthetic observations (this will be zero when
+outputting the true observations). Lastly the {\tt nobservations} and
+{\tt predictions} specify the array size and the array of synthetic
+predictions that are to be output as the observations.
+
+For synthetic model general (see the file {\tt mksynthetic.cpp}), a
+template observation file will be loaded by calling {\tt tdtwave2d\_loaddata\_}
+followed by {\tt tdtwave2d\_compute\_prediction\_} 
+
+\subsection{Parallel implementation}
+
+The generic interface is structured for observation parallelism so that if for example
+a single chain is run on ten processors using the parallel version, observations are
+evenly split between processors and residuals computed. The results are gathered on
+a single processor where the likelihood is computed. In summary
+
+\begin{itemize}
+\item {\tt tdtwave2d\_loaddata\_} is called by all processes at the beginning before
+  the iterations begin
+\item {\tt tdtwave2d\_compute\_prediction\_} is called for a subset of the observations
+  on each processor
+\item {\tt tdtwave2d\_compute\_likelihood\_} is called by one processor (as it is
+  generally a trivial summation over the residuals).
+\end{itemize}
+
+\subsection{Recommendations}
+
+The simplest path to starting a custom application is to copy 
+the C++/Fortran regression example and use that as
+a template.
+
+For each of these examples, there is an example subdirectory
+has a Makefile that
+
+\begin{enumerate}
+\item creates some synthetic template data using scripts included in this source
+  bundle. This essentially creates empty observations but with random points (regression) or
+  random paths (tomography) on the sphere.
+\item creates synthetic data using the compute predictions implementation and adding
+  some Gaussian noise
+\item runs a short single process inversion
+\item runs the post processing to compute the mean model and standard deviation.
+\end{enumerate}
+
+Both the source code for these programs and the simple examples provide good
+starting points for creating custom applications.
+
+
+\bibliography{bibliography}
+\bibliographystyle{plainnat}
+
+\end{document}
