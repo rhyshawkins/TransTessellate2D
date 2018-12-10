@@ -115,12 +115,21 @@ results_50_50_50_vv/mean_sea.txt : results_50_50_50_vv/ch.dat
 	-s 500000 -t 10
 
 results_50_50_50_vv/mean_land.txt : results_50_50_50_vv/ch.dat
-	../post_mean -i $< -o $@ \
+	mpirun -np $(CHAINS) ../post_mean_mpi -i $< -o $@ \
 	-x $(MINLON) -X $(MAXLON) \
 	-y $(MINLAT) -Y $(MAXLAT) \
 	-T 100 \
 	-A 0 -A 0 \
 	-W 50 -H 50 \
 	-I 1 \
+	-s 500000 -t 10
+
+results_50_50_50_vv/mean_tide.txt : results_50_50_50_vv/ch.dat
+	mpirun -np $(CHAINS) ../post_mean_tide_mpi -i $< -o $@ \
+	-x $(MINLON) -X $(MAXLON) \
+	-y $(MINLAT) -Y $(MAXLAT) \
+	-T 100 \
+	-A 0 -A 0 \
+	-W 50 -H 50 \
 	-s 500000 -t 10
 
