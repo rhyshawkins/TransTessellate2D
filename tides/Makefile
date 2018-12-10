@@ -36,7 +36,6 @@ TARGETS = mksynthetic \
 	post_mean_tide_mpi \
 	post_text
 
-
 all : $(TARGETS)
 
 tides.o : tides.cpp
