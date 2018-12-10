@@ -10,7 +10,9 @@ ARFLAGS = -r
 OBJS = bbox2d.o \
 	delaunay2d.o \
 	rjmcmc_debug.o \
-	solver2x2.o
+	solver2x2.o \
+	tracking.o \
+	slog.o
 
 TARGETS = libdelaunay.a
 

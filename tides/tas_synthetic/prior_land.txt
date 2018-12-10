@@ -1,0 +1,4 @@
+prior Uniform
+-10.0 10.0
+proposal Gaussian
+0.2

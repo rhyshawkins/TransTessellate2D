@@ -1,0 +1,3 @@
+positionprior UniformPosition
+positionproposal GaussianPosition
+0.2
