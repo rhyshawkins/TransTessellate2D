@@ -30,8 +30,10 @@ The source code with example scripts and data is called
 TransTessellate2D.tar.gz and once the environment is properly
 configued, extraction and compilation can proceed as follows:
 
+```
 > tar -xzf TransTessellate2D.tar.gz
 > cd TransTessellate2D
 > make 
+```
 
 
