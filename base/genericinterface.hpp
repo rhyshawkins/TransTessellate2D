@@ -1,6 +1,6 @@
 //
-//    GeneralVoronoiCartesian : A general Trans-dimensional Voronoic Cell program
-//    for 2D Cartesian.
+//    TransTesselate2D : A general Trans-dimensional Tesselation program
+//    for 2D Cartesian problems.
 //
 //    Copyright (C) 2014 - 2018 Rhys Hawkins
 //
