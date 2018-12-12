@@ -33,7 +33,6 @@ following packages to compile:
 
 \begin{itemize}
 \item GNU g++ Version 6.x or greater
-\item GNU fortran Version 6.x or greater
 \item GNU Make version 4.x or greater
 \item GNU Scientific Library (GSL) version 1 or 2
 \item OpenMPI version 1.10
@@ -50,6 +49,10 @@ configued, extraction and compilation can proceed as follows:
 \end{verbatim}
 
 which should compile the individual components and example programs.
+The code defaults to GNU/OpenMPI compilation tools, but has been
+tested also using the Intel compiler suite. See the Makefile's in
+the lib, base, generalregressioncpp and tides directories to use
+Intel compilers.
 
 \section{Tutorial on Running the Regression Example}
 

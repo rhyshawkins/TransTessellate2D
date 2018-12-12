@@ -6,15 +6,20 @@ INCLUDES = \
 EXTRA_LIBS =
 
 
-CXX ?= g++
+CXX = mpicxx
+
+#
+# For intel compilers
+#
+#CXX =mpiicpc
+
 CXXFLAGS = -c -g -Wall --std=c++11 $(INCLUDES)
 
 CXXFLAGS += -O3
 
 LIBS = $(EXTRA_LIBS) \
 	-lm \
-	$(shell gsl-config --libs) \
-	$(shell mpicxx -showme:link)
+	$(shell gsl-config --libs) 
 
 OBJS = rng.o \
 	prior.o \

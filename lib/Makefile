@@ -1,5 +1,10 @@
 
-CC ?= gcc
+CC = gcc
+#
+# For intel compilers
+#
+#CC = icc
+
 CFLAGS = -c -g -Wall
 
 CFLAGS += -O3

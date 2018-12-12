@@ -1,5 +1,11 @@
 
-CXX ?= mpicxx
+CXX = mpicxx
+
+#
+# For intel compilers
+#
+#CXX =mpiicpc
+
 CXXFLAGS=-c -g -Wall --std=c++11 -I../base
 
 CXXFLAGS+=-O3
