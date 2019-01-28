@@ -1,8 +1,18 @@
 module genericregression
 
+  !
+  ! Calling C/C++ code from fortran and visa-versa can have compiler dependent issues.
+  ! This should work when using GNU g++ and gfortran for relatively recent compilers
+  ! (tested using 8.2.1).
+  !
   use iso_c_binding
   implicit none
 
+  !
+  ! The interface expects the user to store their own data. Here we create a structure
+  ! to store each observation consisting of an x and y coordinate and value with error
+  ! sigma.
+  !
   type :: observation_t
 
      real(kind = c_double), dimension(1) :: x
@@ -12,13 +22,12 @@ module genericregression
 
   end type observation_t
 
+  !
+  ! The actual observations are stored in a module array
+  !
   integer :: nobservations
   type(observation_t), dimension(:), allocatable :: observations
 
-  real(kind = c_double) :: xmin
-  real(kind = c_double) :: xmax
-  real(kind = c_double) :: ymin
-  real(kind = c_double) :: ymax
 
 contains
 
@@ -36,7 +45,11 @@ contains
     end do
   end function copystring
 
-
+  !
+  ! This function is called on initialisation and is used to inform the
+  ! framework how many 2D models are required and how many hierarchical
+  ! parameters. 
+  !
   function gvcart_initialise_(nmodels, nhierarchical) bind(c)
 
     integer, intent(out) :: nmodels
@@ -51,6 +64,12 @@ contains
     
   end function gvcart_initialise_
 
+  !
+  ! The data file to load is passed via command line to this function and here
+  ! the user supplied function must load the actual data and inform the
+  ! framework of the points required for each observation. This is
+  ! done by registering the points with the callback function addobs
+  !
   function gvcart_loaddata_(n, filename, addobs) bind(c)
 
     integer, intent(in) :: n
@@ -122,6 +141,18 @@ contains
 
   end function gvcart_loaddata_
 
+  !
+  ! This function must compute a predicted value from the model values at the pre-registered
+  ! points. That is, for each point, the array values will return the value at that point.
+  ! For gradient based sampling (HMC) you need to specify the gradient for the
+  ! prediction with respect to each value, ie weights[i] = dprediction/dvalues[i].
+  ! For this simple regression problem, prediction = values(1) and hence weight(1) = 1.0.
+  !
+  ! Special note: the observationidx (not used in the regression case) refers to which observation
+  ! this prediction is for in case extra user data is needed for calculation. This index uses
+  ! C indexing and hence starts at 0. In fortran a 1 may need to be added to refer to the
+  ! correct observation when fortran arrays are used for storage of observations.
+  !
   function gvcart_compute_prediction_(nmodels, observationidx, npoints, values, weights, prediction) bind (c)
 
     integer, intent(in) :: nmodels
@@ -140,7 +171,14 @@ contains
 
   end function gvcart_compute_prediction_
 
-  
+  !
+  ! This function computes the likelihood based on the predictions of all observations.
+  ! It must compute residuals and weights (d log(like)/dpred[i]). Note that this
+  ! computes the negative log likelihood and separates the normalization term
+  ! and the exponential term (assuming Gaussian likelihood). The point of this
+  ! is that generally the log of the exponential term is more informative without
+  ! including the normalization term.
+  !
   function gvcart_compute_likelihood_(nmodels, nhierarchical, nobservation, hierarchical, &
        predictions, residuals, weights, like, norm) bind (c)
 
@@ -183,6 +221,11 @@ contains
 
   end function gvcart_compute_likelihood_
 
+  !
+  ! This function is typically used in the generation of synthetic observations
+  ! to run synthetic tests. It requires saving of data given by the predictions
+  ! array into the format used above in gvcart_loaddata_.
+  !
   function gvcart_savedata_(n, filename, noiselevel, nobservation, predictions) bind(c)
 
     integer, intent(in) :: n
