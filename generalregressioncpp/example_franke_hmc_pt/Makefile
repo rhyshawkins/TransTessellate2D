@@ -50,7 +50,7 @@ results_voronoi/ch.dat-000 : syntheticobs_franke.txt \
 	positionpriorproposal.txt \
 	hierarchicalpriorproposal.txt 
 	mkdir -p results_voronoi
-	mpirun -np $(PROCESSORS) ../hmcpt -i syntheticobs_franke.txt \
+	mpirun --oversubscribe -np $(PROCESSORS) ../hmcpt -i syntheticobs_franke.txt \
 	-P priorproposal.txt \
 	-M positionpriorproposal.txt \
 	-H hierarchicalpriorproposal.txt \
@@ -71,6 +71,15 @@ results_voronoi/mean.txt : results_voronoi/ch.dat-000
 	-t 50 \
 	-s 500000 -W 50 -H 50 \
 	-D results_voronoi/stddev.txt
+
+results_voronoi/like.txt : results_voronoi/ch.dat-000
+	../post_likelihood \
+	-x 0.0 -X 1.0 -y 0.0 -Y 1.0 \
+	-i results_voronoi/ch.dat-000 -o $@ \
+	-H results_voronoi/hierarchical.txt \
+	-K results_voronoi/khistory.txt \
+	-t 50 \
+	-s 500000
 
 results_delaunay/ch.dat-000 : syntheticobs_franke.txt \
 	priorproposal.txt \
