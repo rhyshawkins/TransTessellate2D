@@ -37,14 +37,14 @@ For each region there are four files:
   <region>_regression_tides.txt
 ```
 
-The format for the &lt;region&gt;_regression_*.txt files are simple text files where
+The format for the &lt;region&gt;\_regression\_*.txt files are simple text files where
 the first line is the total number of points, then for each point there
 are space seperated values for
 ```
 <longitude> <latitude> <rate> <rate error>
 ```
 
-The format for the &lt;region&gt;_combined.txt files are similar except for each point
+The format for the &lt;region&gt;\_combined.txt files are similar except for each point
 there is a added "type" field, ie
 ```
 <longitude> <latitude> <type> <rate> <rate error>
