@@ -40,6 +40,8 @@ TARGETS = mksynthetic \
 	post_mean_mpi \
 	post_mean_tide \
 	post_mean_tide_mpi \
+	post_resolution \
+	post_resolution_mpi \
 	post_text
 
 all : $(TARGETS)
@@ -73,6 +75,12 @@ post_mean : $(TARGETOBJS) $(BASEOBJS) ../base/post_mean.o
 
 post_mean_mpi : $(TARGETOBJS) $(BASEOBJS) ../base/post_mean_mpi.o
 	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_mean_mpi.o $(LIBS)
+
+post_resolution : $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution.o
+	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution.o $(LIBS)
+
+post_resolution_mpi : $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution_mpi.o
+	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution_mpi.o $(LIBS)
 
 post_mean_tide : $(TARGETOBJS) $(BASEOBJS) ../base/post_mean_derived.o
 	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_mean_derived.o $(LIBS)

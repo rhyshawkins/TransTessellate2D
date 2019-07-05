@@ -125,7 +125,8 @@ public:
 	  //
 	  // Get existing value at point
 	  //
-	  oldvalue = models[mi]->value_at_point(newx, newy);
+	  int t0 = 0;
+	  oldvalue = models[mi]->value_at_point(newx, newy, t0);
 	  
 	  //
 	  // Propose new value

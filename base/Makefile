@@ -1,7 +1,8 @@
 
 INCLUDES = \
 	-I../lib \
-	$(shell mpicc -showme:compile)
+	$(shell mpicc -showme:compile) \
+	$(shell gsl-config --cflags)
 
 EXTRA_LIBS =
 
@@ -34,6 +35,8 @@ OBJS = rng.o \
 	post_mean_derived.o \
 	post_mean_mpi.o \
 	post_mean_derived_mpi.o \
+	post_resolution.o \
+	post_resolution_mpi.o \
 	post_text.o \
 	generalvoronoicartesian.o \
 	generalvoronoicartesianpt.o \

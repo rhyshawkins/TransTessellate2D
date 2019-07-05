@@ -373,6 +373,7 @@ int main(int argc, char *argv[])
   double norm;
 
   double *values = new double[nmodels];
+  int *t0 = new int[nmodels];
   
   int status = reader.step(models, hierarchical, likelihood, norm);
   int step = 0;
@@ -388,6 +389,10 @@ int main(int argc, char *argv[])
 	  m->recompute();
 	}
 	
+	for (int mi = 0; mi < nmodels; mi ++) {
+	  t0[mi] = 0;
+	}
+
 	for (int j = 0; j < latsamples; j ++) {
 	  
 	  double y = ((double)j + 0.5)/(double)latsamples * (ymax - ymin) + ymin;
@@ -397,7 +402,7 @@ int main(int argc, char *argv[])
 	    double x = ((double)i + 0.5)/(double)lonsamples * (xmax - xmin) + xmin;
 	    
 	    for (int mi = 0; mi < nmodels; mi ++) {
-	      values[mi] = models[mi]->value_at_point(x, y);
+	      values[mi] = models[mi]->value_at_point(x, y, t0[mi]);
 	    }
 	    
 	    image[j * lonsamples + i] = gvcart_compute_derived_(&nmodels,

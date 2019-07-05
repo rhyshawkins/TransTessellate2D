@@ -408,6 +408,7 @@ int main(int argc, char *argv[])
 	
 	double tminv = 0.0;
 	double tmaxv = 0.0;
+	int t0 = 0;
 	for (int j = 0; j < latsamples; j ++) {
 	  
 	  double y = ((double)j + 0.5)/(double)latsamples * (ymax - ymin) + ymin;
@@ -416,7 +417,7 @@ int main(int argc, char *argv[])
 	    
 	    double x = ((double)i + 0.5)/(double)lonsamples * (xmax - xmin) + xmin;
 	    
-	    image[j * lonsamples + i] = models[modelindex]->value_at_point(x, y);
+	    image[j * lonsamples + i] = models[modelindex]->value_at_point(x, y, t0);
 
 	    if (image[j * lonsamples + i] > tmaxv) {
 	      tmaxv = image[j * lonsamples + i];

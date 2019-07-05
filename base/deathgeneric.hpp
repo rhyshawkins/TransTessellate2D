@@ -123,7 +123,8 @@ public:
 										       undo_y));
       models[mi]->delete_cell(cell);
 
-      double new_value = models[mi]->value_at_point(undo_x, undo_y);
+      int t0 = 0;
+      double new_value = models[mi]->value_at_point(undo_x, undo_y, t0);
       
       log_proposal_ratio =
 	position_proposals[mi]->log_proposal(random,

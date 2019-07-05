@@ -60,6 +60,12 @@ all :
 	make -C generalregressioncpp
 	make -C tides
 
+clean :
+	make -C lib clean
+	make -C base clean
+	make -C generalregressioncpp clean
+	make -C tides clean
+
 dist : 
 	mkdir -p $(DIR)
 	echo $(DATE) > $(DIR)/Version

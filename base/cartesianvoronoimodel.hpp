@@ -520,36 +520,49 @@ public:
     *cell_value = i;
   }
 
-  double value_at_point(double x, double y) const
+  double value_at_point(double x, double y, int &t0) const
   {
     double z;
     
     switch (type) {
     case VORONOI:
-      if (delaunay2d_nearest_value_at(model, 0,
-				      x, y,
-				      &z) < 0) {
+      if (t0 < 0 || t0 >= delaunay2d_npoints(model)) {
+	// Reset silently.
+	t0 = 0;
+      }
+      t0 = delaunay2d_nearest_value_at(model, t0,
+				       x, y,
+				       &z);
+      if (t0 < 0) {
 	throw GENERALVORONOICARTESIANEXCEPTION("Failed to find nearest point %10.6f %10.6f %d",
 					       x, y, 
 					       delaunay2d_npoints(model));
       }
       break;
-
+      
     case DELAUNAY:
-      if (delaunay2d_linear_value_at(model, 0,
-				     x, y,
-				     &z) < 0) {
+      if (t0 < 0 || t0 >= delaunay2d_ntriangles(model)) {
+	t0 = 0;
+      }
+      t0 = delaunay2d_linear_value_at(model, t0,
+				      x, y,
+				      &z);
+      if (t0 < 0) {
 	throw GENERALVORONOICARTESIANEXCEPTION("Failed to find linear value point %10.6f %10.6f %d",
 					       x, y,
 					       delaunay2d_npoints(model));
       }
-	
+      
       break;
-
+      
     case CLOUGHTOCHER:
-      if (delaunay2d_ct_value_at(model, 0,
-				 x, y,
-				 &z) < 0) {
+      if (t0 < 0 || t0 >= delaunay2d_ntriangles(model)) {
+	t0 = 0;
+      }
+      t0 = delaunay2d_ct_value_at(model, t0,
+				  x, y,
+				  &z);
+      if (t0 < 0) {
 	throw GENERALVORONOICARTESIANEXCEPTION("Failed to find ct value point %10.6f %10.6f %d",
 					       x, y,
 					       delaunay2d_npoints(model));
@@ -562,6 +575,16 @@ public:
     }
 
     return z;
+  }
+
+  double circumcircle_radius_at_point(double x, double y) const
+  {
+    return delaunay2d_circumcircle_radius_at_point(model, x, y);
+  }
+
+  double incircle_radius_at_point(double x, double y) const
+  {
+    return delaunay2d_incircle_radius_at_point(model, x, y);
   }
 
   double value_at_index(int index) const

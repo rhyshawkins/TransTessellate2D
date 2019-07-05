@@ -37,6 +37,8 @@ TARGETS = mksynthetic \
 	post_likelihood \
 	post_likelihood_mpi \
 	post_mean_mpi \
+	post_resolution \
+	post_resolution_mpi \
 	post_text
 
 
@@ -74,6 +76,12 @@ post_likelihood : $(TARGETOBJS) $(BASEOBJS) ../base/post_likelihood.o
 
 post_likelihood_mpi : $(TARGETOBJS) $(BASEOBJS) ../base/post_likelihood_mpi.o
 	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_likelihood_mpi.o $(LIBS)
+
+post_resolution : $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution.o
+	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution.o $(LIBS)
+
+post_resolution_mpi : $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution_mpi.o
+	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_resolution_mpi.o $(LIBS)
 
 post_text : $(TARGETOBJS) $(BASEOBJS) ../base/post_text.o
 	$(CXX) -o $@ $(TARGETOBJS) $(BASEOBJS) ../base/post_text.o $(LIBS)

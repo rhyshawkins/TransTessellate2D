@@ -74,5 +74,33 @@ results_australia/mean_sea.txt : results_australia/ch.dat
 	-x 110.0 -X 160.0 \
         -y -50.0 -Y -5.0 \
 	-s 50000 -t 10 \
-	-A 1 -A 1
+        -D results_australia/stddev_sea.txt \
+        -m results_australia/median_sea.txt \
+        -g results_australia/histogram_sea.txt \
+        -z -10.0 -Z 10.0 -b 400 \
+	-A 1 -A 1 \
+	-I 0
+
+results_australia/mean_land.txt : results_australia/ch.dat
+	../../post_mean -i $< -o $@ \
+	-x 110.0 -X 160.0 \
+        -y -50.0 -Y -5.0 \
+	-s 50000 -t 10 \
+        -D results_australia/stddev_land.txt \
+        -m results_australia/median_land.txt \
+        -g results_australia/histogram_land.txt \
+        -z -10.0 -Z 10.0 -b 400 \
+	-A 1 -A 1 \
+	-I 1
+
+results_australia/mean_tide.txt : results_australia/ch.dat
+	../../post_mean_tide -i $< -o $@ \
+	-x 110.0 -X 160.0 \
+        -y -50.0 -Y -5.0 \
+	-s 50000 -t 10 \
+        -D results_australia/stddev_tide.txt \
+        -m results_australia/median_tide.txt \
+        -g results_australia/histogram_tide.txt \
+        -z -10.0 -Z 10.0 -b 400 \
+	-A 1 -A 1 
 

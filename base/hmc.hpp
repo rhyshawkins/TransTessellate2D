@@ -221,7 +221,7 @@ public:
 	  offset += n;
 	}
 
-	fprintf(stderr, "prior violation\n");
+	// fprintf(stderr, "prior violation\n");
 	return false;
       }
 
@@ -311,7 +311,7 @@ public:
 				       dlp);
 	if (lp == Prior::INVALID_LOGP) {
 	  // Prior violation
-	  printf("Prior violation: %16.9e %16.9e\n", v, undo_v[offset + j]);
+	  // printf("Prior violation: %16.9e %16.9e\n", v, undo_v[offset + j]);
 	  return false;
 	}
 
