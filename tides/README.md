@@ -44,7 +44,7 @@ are space seperated values for
 <longitude> <latitude> <rate> <rate error>
 ```
 
-The format for the `<region>`_combined.txt files are similar except for each point
+The format for the <region>_combined.txt files are similar except for each point
 there is a added "type" field, ie
 ```
 <longitude> <latitude> <type> <rate> <rate error>
