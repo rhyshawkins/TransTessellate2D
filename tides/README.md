@@ -30,19 +30,25 @@ Altimetry) in
 The processed data as used in the above study appear in the jgr2019/data directory.
 
 For each region there are four files:
+```
   <region>_combined.txt
   <region>_regression_sea.txt
   <region>_regression_gps.txt
   <region>_regression_tides.txt
+```
 
-The format for the <region>_regression_*.txt files are simple text files where
+The format for the `<region>`_regression_*.txt files are simple text files where
 the first line is the total number of points, then for each point there
 are space seperated values for
+```
 <longitude> <latitude> <rate> <rate error>
+```
 
-The format for the <region>_combined.txt files are similar except for each point
+The format for the `<region>`_combined.txt files are similar except for each point
 there is a added "type" field, ie
+```
 <longitude> <latitude> <type> <rate> <rate error>
+```
 
 Which defines if the observation is a Tide Gauge (1), GPS (2) or Sea surface (3).
 
