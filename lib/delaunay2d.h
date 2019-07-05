@@ -158,6 +158,9 @@ int
 delaunay2d_npoints(const delaunay2d_t *d);
 
 int
+delaunay2d_ntriangles(const delaunay2d_t *d);
+
+int
 delaunay2d_polygon_bound(const delaunay2d_t *d,
 			 int i,
 			 bbox2d_t *bound);
@@ -202,6 +205,12 @@ triangle_circumcircle(double x1, double y1,
 		      double *cx, double *cy,
 		      double *cr2);
 
+int
+triangle_incircle_radius(double x1, double y1,
+			 double x2, double y2,
+			 double x3, double y3,
+			 double *ir);
+
 int 
 point_in_triangle(double px,
 		  double py,
@@ -212,5 +221,9 @@ point_in_triangle(double px,
 int delaunay2d_max_edges(const delaunay2d_t *d);
 
 int delaunay2d_max_triangle_edges(const delaunay2d_t *d);
+
+double delaunay2d_circumcircle_radius_at_point(const delaunay2d_t *d, double x, double y);
+
+double delaunay2d_incircle_radius_at_point(const delaunay2d_t *d, double x, double y);
 
 #endif /* delaunay2d_h */

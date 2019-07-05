@@ -1267,6 +1267,14 @@ delaunay2d_npoints(const delaunay2d_t *d)
 }
 
 int
+delaunay2d_ntriangles(const delaunay2d_t *d)
+{
+  RJMCMC_CONDITIONCHECKINT(d == NULL, "delaunay2d_ntriangles: NULL delaunay\n");
+
+  return d->nt;
+}
+
+int
 delaunay2d_polygon_bound(const delaunay2d_t *d,
 			 int pi,
 			 bbox2d_t *bound)
@@ -2922,6 +2930,16 @@ static int circumcircle_of_triangle(const delaunay2d_t *d,
 			       cx, cy, r2);
 }
 
+static int incircle_radius_of_triangle(const delaunay2d_t *d,
+				       int ti,
+				       double *ir)
+{
+  return triangle_incircle_radius(d->p[d->t[ti].v[0]].x, d->p[d->t[ti].v[0]].y,
+				  d->p[d->t[ti].v[1]].x, d->p[d->t[ti].v[1]].y,
+				  d->p[d->t[ti].v[2]].x, d->p[d->t[ti].v[2]].y,
+				  ir);
+}
+
 static int neighbour_index(const delaunay2d_t *d,
 			   int neighbour,
 			   int tri)
@@ -3780,7 +3798,35 @@ triangle_circumcircle(double x1, double y1,
   *r2 = dx*dx + dy*dy;
   
   return 0;
-}    
+}
+
+int
+triangle_incircle_radius(double x1, double y1,
+			 double x2, double y2,
+			 double x3, double y3,
+			 double *ir)
+{
+  double dx, dy;
+  double a, b, c, s;
+
+  dx = x2 - x1;
+  dy = y2 - y1;
+  a = sqrt(dx*dx + dy*dy);
+
+  dx = x3 - x2;
+  dy = y3 - y2;
+  b = sqrt(dx*dx + dy*dy);
+
+  dx = x1 - x3;
+  dy = y1 - y3;
+  c = sqrt(dx*dx + dy*dy);
+
+  s = (a + b + c)/2;
+
+  *ir = sqrt( s*(s - a)*(s - b)*(s - c))/s;
+
+  return 0;
+}
 
 
 int
@@ -4314,3 +4360,68 @@ static int ct_initialize_weight_with_three(int nweights,
 }
 
 
+double delaunay2d_circumcircle_radius_at_point(const delaunay2d_t *d, double x, double y)
+{
+  int ti;
+
+  int pa, pb, pc;
+  double ba, bb, bc;
+  double cx, cy, cr2;
+  
+  ti = delaunay2d_find_enclosing_triangle(d,
+					  0,
+					  x,
+					  y,
+					  &pa,
+					  &pb, 
+					  &pc,
+					  &ba,
+					  &bb,
+					  &bc);
+
+  if (ti < 0) {
+    return -1.0;
+  }
+
+  
+  if (circumcircle_of_triangle(d,
+			       ti,
+			       &cx, &cy, &cr2) < 0) {
+    return -1.0;
+  }
+
+  return sqrt(cr2);
+}
+
+double delaunay2d_incircle_radius_at_point(const delaunay2d_t *d, double x, double y)
+{
+  int ti;
+
+  int pa, pb, pc;
+  double ba, bb, bc;
+  double ir;
+  
+  ti = delaunay2d_find_enclosing_triangle(d,
+					  0,
+					  x,
+					  y,
+					  &pa,
+					  &pb, 
+					  &pc,
+					  &ba,
+					  &bb,
+					  &bc);
+
+  if (ti < 0) {
+    return -1.0;
+  }
+
+  
+  if (incircle_radius_of_triangle(d,
+				  ti,
+				  &ir) < 0) {
+    return -1.0;
+  }
+
+  return ir;
+}
