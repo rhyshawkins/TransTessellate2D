@@ -36,4 +36,17 @@ configued, extraction and compilation can proceed as follows:
 > make 
 ```
 
+## Virtual Tide Gauges
+
+The Tide Gauge module of this software package has applied to real data (Tide Gauge, GPS and Satellite Radar
+Altimetry) in
+
+  Hawkins R., Husson L., Choblet G., Bodin T. and Pfeffer J.,
+  "Virtual tide gauges for predicting relative sea level rise",
+  JGR: Solid Earth,
+  2019 (submitted)
+
+For details, and data, see the README.md in the tides subdirectory.
+
+
 
