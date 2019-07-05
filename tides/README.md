@@ -48,12 +48,12 @@ Which defines if the observation is a Tide Gauge (1), GPS (2) or Sea surface (3)
 
 ### Running
 
-In the data_jgr2019/example directory there is a single processor inversion of
+In the jgr2019/example directory there is a single processor inversion of
 data for the Australian region. This is not representative of the final results
 but is used to demonstrate the operation of the method on a small dataset.
 
 The actual results from the paper are generated on a cluster and the
-slurm submission scripts used are located in the data_jgr2019/slurm
+slurm submission scripts used are located in the jgr2019/slurm
 subdirectory.
 
 ### Acknowledgements
