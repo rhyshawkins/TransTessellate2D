@@ -1,8 +1,8 @@
 //
-//    TransTesselate2D : A general Trans-dimensional Tesselation program
+//    TransTessellate2D : A general Trans-dimensional Tessellation program
 //    for 2D Cartesian problems.
 //
-//    Copyright (C) 2014 - 2018 Rhys Hawkins
+//    Copyright (C) 2014 - 2019 Rhys Hawkins
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by

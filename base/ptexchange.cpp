@@ -156,10 +156,6 @@ PTExchange::step(double &current_likelihood,
     }
     
     if (partner < 0) {
-      INFO("ptpairs");
-      for (int j = 0; j < temperature_size; j ++) {
-	INFO("%d ", ptpairs[j]);
-      }
       throw GENERALVORONOICARTESIANEXCEPTION("Failed to find self in exchange list\n");
     }
     
@@ -424,7 +420,6 @@ PTExchange::initialize_mpi(MPI_Comm _global_communicator,
   }
 
   INFO("%03d: Global Size: %d NChains: %d PPC: %d\n", global_rank, global_size, ntotalchains, processesperchain);
-
   INFO("%03d: Temperature Size: %d Temperature Rank: %d\n", global_rank, temperature_size, temperature_rank);
   
   //

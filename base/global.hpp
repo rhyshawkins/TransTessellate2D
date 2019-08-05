@@ -1,8 +1,8 @@
 //
-//    TransTesselate2D : A general Trans-dimensional Tesselation program
+//    TransTessellate2D : A general Trans-dimensional Tessellation program
 //    for 2D Cartesian problems.
 //
-//    Copyright (C) 2014 - 2018 Rhys Hawkins
+//    Copyright (C) 2014 - 2019 Rhys Hawkins
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -207,14 +207,14 @@ public:
 
       modelweights.resize(data.obs.size());
 
-      for (int i = 0; i < nmodels; i ++) {
-	dLdm.push_back(new double[_maxcells + 4]);
-      }
-      
     } else {
       
     }
 
+    for (int i = 0; i < nmodels; i ++) {
+      dLdm.push_back(new double[_maxcells + 4]);
+    }
+      
     for (int i = 0; i < nmodels; i ++) {
 
       //
@@ -344,7 +344,11 @@ public:
 	  }
 	  
 	  int pruned_count = 0;
-	  for (int j = used.size() - 1; j >= 4; j --) {
+	  int minpoints = 4;
+	  if (models[mi]->type == cartesianvoronoimodel::VORONOI) {
+	    minpoints = 5;
+	  }
+	  for (int j = used.size() - 1; j >= minpoints; j --) {
 	    if (!used[j]) {
 	      models[mi]->delete_cell(j);
 	      pruned_count ++;
@@ -1097,6 +1101,7 @@ public:
   Rng random;
 
   bool posterior;
+
 };
 
 #endif // globalspherical_hpp
