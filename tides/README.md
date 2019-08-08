@@ -58,9 +58,59 @@ In the jgr2019/example directory there is a single processor inversion of
 data for the Australian region. This is not representative of the final results
 but is used to demonstrate the operation of the method on a small dataset.
 
+The individual steps for running are programmed into the Makefile in the
+jgr2019/example directory. The Makefile has comments in it to describe the
+various stages of inversions, but can be simply run to obtain results. For example,
+running
+
+'''
+> cd jgr2019/example
+> make
+'''
+
+Will run the demonstration single chain inversion of the Australian dataset,
+and produce 3 pdf plots of the mean of the ensemble created, e.g. mean_tide.pdf
+can be compared to Figure 6 (g) in the paper. This inversion will take approximately
+1 - 2 minutes on a modern desktop computer. The plotting routines require Numpy,
+Matplotlib, and Basemap to be available.
+
+### Slurm Scripts
+
 The actual results from the paper are generated on a cluster and the
 slurm submission scripts used are located in the jgr2019/slurm
 subdirectory.
+
+### Raw results data
+
+Under the jgr2019/results directory are the raw data files containing the
+mean, std. devation, and ensemble histogram files that can be used for
+reanalysis. Each data file has a prefix where the meaning of the prefix
+is
+
+- "joint" all data type inversion
+- "notg"  no tide gauge (GPS and SRA only)
+- "tg"    tide gauge only inversion
+
+Some simple python 3 plotting scripts are included in the jgr2019/scripts
+directory and two bash scripts are included for recreating the figures from the paper.
+For example:
+
+```
+> cd jgr2019/results
+> bash plotmean.sh europe
+> bash plotcoasthistogram.sh southamerica
+```
+
+Will first show the mean RSL for the Europe region (Figure 2(e)), and the second will show
+the virtual tide gauge coastline for South America (Figure 5(b)). The 
+
+The format of the results files are simple space separate text files for images
+that can be simply loaded in python with the command "numpy.loadtxt(filename)". In
+each region, an extents.txt file is included which gives the longitude/latitude
+range. For the format of the histogram files, see the scripts/plot_coast_histogram.py
+python code.
+
+The plotting routines require Numpy, Matplotlib, and Basemap to be available.
 
 ### Acknowledgements
 

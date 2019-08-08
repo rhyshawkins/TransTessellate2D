@@ -1,0 +1,4 @@
+
+EXTENTS="--minlon -155.0 --maxlon -50.0 --minlat 10.0 --maxlat 65.0"
+
+
