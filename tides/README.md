@@ -63,10 +63,10 @@ jgr2019/example directory. The Makefile has comments in it to describe the
 various stages of inversions, but can be simply run to obtain results. For example,
 running
 
-'''
+```
 > cd jgr2019/example
 > make
-'''
+```
 
 Will run the demonstration single chain inversion of the Australian dataset,
 and produce 3 pdf plots of the mean of the ensemble created, e.g. mean_tide.pdf
